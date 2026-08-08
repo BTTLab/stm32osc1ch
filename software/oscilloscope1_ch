@@ -1,0 +1,115 @@
+import serial
+import struct
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+
+PORT = "/dev/cu.usbmodemXXXXX"   # macOS
+# PORT = "COM7"                  # Windows
+
+BAUD = 921600
+
+SAMPLES = 4096
+
+ADC_VREF = 3.3
+ADC_MAX = 4095
+
+SAMPLE_RATE = 2000000   # 2 MHz
+
+time = np.arange(SAMPLES) / SAMPLE_RATE * 1e6
+
+ser = serial.Serial(
+    PORT,
+    BAUD,
+    timeout=2
+)
+ser.reset_input_buffer()
+signal = np.zeros(SAMPLES)
+voltage = np.zeros(SAMPLES)
+
+def read_frame():
+
+    while True:
+
+        b = ser.read(1)
+
+        if not b:
+            return None
+
+
+        if b[0] == 0xAA:
+
+            b2 = ser.read(1)
+
+            if b2 and b2[0] == 0x55:
+                break
+
+    data = ser.read(SAMPLES * 2)
+
+
+    if len(data) != SAMPLES * 2:
+        return None
+
+    values = struct.unpack(
+        "<" + "H" * SAMPLES,
+        data
+    )
+
+
+    return np.array(values)
+fig, ax = plt.subplots()
+
+
+line, = ax.plot(
+    time,
+    voltage
+)
+ax.set_ylim(
+    0,
+    ADC_VREF
+)
+
+
+ax.set_xlim(
+    0,
+    time[-1]
+)
+
+ax.set_xlabel(
+    "Time (us)"
+)
+
+ax.set_ylabel(
+    "Voltage (V)"
+)
+
+ax.grid()
+
+def update(frame):
+
+    global signal
+    global voltage
+
+
+    data = read_frame()
+
+
+    if data is not None:
+        signal = data
+        voltage = (
+            signal *
+            ADC_VREF /
+            ADC_MAX
+        )
+        line.set_ydata(
+            voltage
+        )
+    return line,
+
+ani = FuncAnimation(
+    fig,
+    update,
+    interval=100,
+    blit=True
+)
+plt.show()

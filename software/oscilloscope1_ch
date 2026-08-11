@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 PORT = "/dev/cu.usbmodemXXXXX"   # macOS
-# PORT = "COM7"                  # Windows
+# PORT = "COMXX"                 # Windows
 
 BAUD = 921600
 

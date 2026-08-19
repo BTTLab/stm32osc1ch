@@ -74,7 +74,7 @@ Update the `PORT` variable in `oscilloscope1_ch.py` to match your board's serial
 - [ ] Variable time base / sample rate ranges
 - [ ] Analog front-end (AC coupling, offset, input protection)
 - [ ] Higher effective sampling rate via reduced resolution and/or interleaved use of all 3 ADCs
-- [ ] Multi-channel support (up to 4 channels, sharing the 3rd ADC between two inputs)
+- [ ] Multi-channel support (up to 3 channels)
 
 ## License
 
